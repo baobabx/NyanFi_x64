@@ -1,12 +1,13 @@
-# NyanFi_x64
+# NyanFi_x64 customized
 
 ![Screenshot](screenshot.png)
 
 NyanFi is a dual pane file manager for Windows.  
 Supported language is Japanese only.  
+Original NyanFi is developing by SUDO Koichi (https://github.com/Nekomimi1958/NyanFi_x64)
 
-## Download Executable File
-http://nekomimi.la.coocan.jp/freesoft/nyanfi.htm  
+## What's different
+* When key down without Ctrl, Alt and Shift, start incremental search with migemo
+* On OpenStandard, even if there is setting for '*' ext, handle the archive file in filer.
+* if there is setting for '*' ext, handle files that has no ext with it.
 
-## Development Environment
-C++Builder 10.4.2 (BCC64)

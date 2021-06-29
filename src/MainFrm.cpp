@@ -21374,7 +21374,9 @@ void __fastcall TNyanFiForm::OpenStandardActionExecute(TObject *Sender)
 
 		//コマンドへの関連付けをチェック
 		TAction *CmdAct = NULL;
+		//[START] *へのコマンドの場合アーカイブとして扱うことを優先する
 		UnicodeString cmdExt;
+		//[END] *へのコマンドの場合アーカイブとして扱うことを優先する
 		UnicodeString CmdPrm;
 		if (!cfp->is_dir) {
 			for (int i=0; i<OpenStdCmdList->Count && !CmdAct; i++) {
@@ -21386,8 +21388,11 @@ void __fastcall TNyanFiForm::OpenStandardActionExecute(TObject *Sender)
 					TAction *ap = (TAction*)ActionList1->Actions[j];
 					if (!USAME_TI(ap->Category, "Command")) continue;
 					if (SameText(cmd, get_tkn(ap->Name, _T("Action")))) {
-						CmdAct = ap;  CmdPrm = prm;	break;
+						CmdAct = ap;  CmdPrm = prm;
+						//[START] *へのコマンドの場合アーカイブとして扱うことを優先する
 						cmdExt = OpenStdCmdList->Names[i];
+						//[END] *へのコマンドの場合アーカイブとして扱うことを優先する
+						break;
 					}
 				}
 			}
@@ -21442,7 +21447,7 @@ void __fastcall TNyanFiForm::OpenStandardActionExecute(TObject *Sender)
 					//ディレクトリ
 					if (cfp->is_dir) {
 						CurPath[CurListTag] = IncludeTrailingPathDelimiter(cfp->f_name);
-				 		FileListBox[CurListTag]->ItemIndex = 0;
+						FileListBox[CurListTag]->ItemIndex = 0;
 					}
 					//ファイル
 					else {
@@ -21620,7 +21625,7 @@ void __fastcall TNyanFiForm::OpenStandardActionExecute(TObject *Sender)
 
 				bool not_down = false;
 				//[START] *へのコマンドの場合アーカイブとして扱うことを優先する
-				if (is_AvailableArc(cfp->f_name) && (SAME_TS(cmdExt, "*") || USAME_TS(cmdExt, ".*"))) {
+				if (is_AvailableArc(cfp->f_name) && (USAME_TS(cmdExt, "*") || USAME_TS(cmdExt, ".*"))) {
 					if (cfp->f_name.Length()>=MAX_PATH) SysErrAbort(ERROR_BUFFER_OVERFLOW);
 					if (CurStt->is_Find || CurStt->is_Work) RecoverFileList();	//結果リスト/ワークリストから抜ける
 					CurStt->arc_Name	= cfp->f_name;
