@@ -357,6 +357,11 @@ UnicodeString get_extension_if_file(UnicodeString fnam)
 //---------------------------------------------------------------------------
 bool test_FileExt(UnicodeString fext, UnicodeString list)
 {
+	//[START] 拡張子がないファイルの場合 かつ 対象拡張子が"*"の場合は対象とする
+	if (fext.IsEmpty() && list.Length() > 0 && (USAME_TS(list, "*") || USAME_TS(list, ".*"))) {
+		return true;
+	}
+	//[END] 拡張子がないファイルの場合 かつ 対象拡張子が"*"の場合は対象とする
 	if (list.IsEmpty() || fext.IsEmpty() || USAME_TS(fext, ".")) return false;
 	if (USAME_TS(list, "*") || USAME_TS(list, ".*")) return true;
 	if (!StartsStr('.', fext)) fext.Insert(".", 1);

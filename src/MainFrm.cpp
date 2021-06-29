@@ -11030,6 +11030,15 @@ void __fastcall TNyanFiForm::FileListKeyDown(TObject *Sender, WORD &Key, TShiftS
 			FileListIncSearch(KeyStr);
 			Key = 0;
 		}
+		//[START] Ctrl, Alt, Shiftが押されていない単一キー押下場合インクリメンタルサーチを開始する
+		else if (!CurStt->is_IncSea && !Shift.Contains(ssCtrl) && !Shift.Contains(ssAlt) && !Shift.Contains(ssShift) && KeyStr.Length() == 1) {
+			CurStt->is_IncSea = true;
+			CurStt->is_Migemo = true;
+			CurStt->incsea_Word = EmptyStr;
+			FileListIncSearch(KeyStr);
+			Key = 0;
+		}
+		//[END] Ctrl, Alt, Shiftが押されていない単一キー押下場合インクリメンタルサーチを開始する
 		//検索中...
 		else if (FindBusy) {
 			if		(equal_ESC(KeyStr))						FindAborted = true;		//中断
@@ -21365,6 +21374,7 @@ void __fastcall TNyanFiForm::OpenStandardActionExecute(TObject *Sender)
 
 		//コマンドへの関連付けをチェック
 		TAction *CmdAct = NULL;
+		UnicodeString cmdExt;
 		UnicodeString CmdPrm;
 		if (!cfp->is_dir) {
 			for (int i=0; i<OpenStdCmdList->Count && !CmdAct; i++) {
@@ -21377,6 +21387,7 @@ void __fastcall TNyanFiForm::OpenStandardActionExecute(TObject *Sender)
 					if (!USAME_TI(ap->Category, "Command")) continue;
 					if (SameText(cmd, get_tkn(ap->Name, _T("Action")))) {
 						CmdAct = ap;  CmdPrm = prm;	break;
+						cmdExt = OpenStdCmdList->Names[i];
 					}
 				}
 			}
@@ -21608,8 +21619,26 @@ void __fastcall TNyanFiForm::OpenStandardActionExecute(TObject *Sender)
 				if (!file_exists(cfp->f_name)) SysErrAbort(ERROR_FILE_NOT_FOUND);
 
 				bool not_down = false;
+				//[START] *へのコマンドの場合アーカイブとして扱うことを優先する
+				if (is_AvailableArc(cfp->f_name) && (SAME_TS(cmdExt, "*") || USAME_TS(cmdExt, ".*"))) {
+					if (cfp->f_name.Length()>=MAX_PATH) SysErrAbort(ERROR_BUFFER_OVERFLOW);
+					if (CurStt->is_Find || CurStt->is_Work) RecoverFileList();	//結果リスト/ワークリストから抜ける
+					CurStt->arc_Name	= cfp->f_name;
+					CurStt->arc_SubPath = EmptyStr;
+					CurStt->arc_DspPath = IncludeTrailingPathDelimiter(cfp->n_name);
+					if (UpdateTempArcList(CurListTag).IsEmpty()) UserAbort(USTR_CantMakeTmpDir);
+					SelMaskList[CurListTag]->Clear();
+					if (!ChangeArcFileListEx(CurStt->arc_Name, CurStt->arc_SubPath, CurListTag)) {
+						InhReload++;
+						UserAbort(USTR_ArcNotOpen);
+					}
+					//イベント: 仮想ディレクトリを開いた直後
+					ExeEventCommand(OnArcOpend);
+					not_down = true;
+				}
+				//[END] *へのコマンドの場合アーカイブとして扱うことを優先する
 				//コマンドへの関連付け有り
-				if (CmdAct) {
+				else if (CmdAct) {
 					fromOpenStd = true;
 					if (is_nbt) {
 						ActionParam  = def_if_empty(CmdPrm, "@" + cfp->f_name);
