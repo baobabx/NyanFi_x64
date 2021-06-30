@@ -11092,14 +11092,14 @@ void __fastcall TNyanFiForm::FileListKeyDown(TObject *Sender, WORD &Key, TShiftS
 		else if (USAME_TI(KeyStr, "Alt+F4")) {		//標準の終了
 			ReqClose = true;
 		}
-		//頭文字サーチ
-		else if (is_IniSeaKey(KeyStr)) {	//KeyStr に正規表現パターンが返る
-			int f_idx = find_NextFile(lst, idx, EmptyStr, KeyStr, false, true);
-			if (f_idx!=-1) {
-				ListBoxSetIndex(lp, f_idx);
-				SetFileInf();
-			}
-		}
+		// //頭文字サーチ
+		// else if (is_IniSeaKey(KeyStr)) {	//KeyStr に正規表現パターンが返る
+		// 	int f_idx = find_NextFile(lst, idx, EmptyStr, KeyStr, false, true);
+		// 	if (f_idx!=-1) {
+		// 		ListBoxSetIndex(lp, f_idx);
+		// 		SetFileInf();
+		// 	}
+		// }
 		//F:Enter キーの処理
 		else if (equal_ENTER(KeyStr)) {
 			if (!ExeCmdAction(OpenStandardAction)) ActionAbort();
